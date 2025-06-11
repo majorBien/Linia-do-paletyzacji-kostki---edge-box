@@ -2,22 +2,18 @@
  * io.c
  *
  *  Created on: 11 cze 2025
- *      Author: lenovo
+ *      Author: majorBien
  */
-
-
-/* io.c */
 
 #include "io.h"
 #include "driver/gpio.h"
 #include "esp_log.h"
+#include "logic.h" 
 
 #define TAG "io"
 
-
-
 inputs_t inputs;
-
+extern QueueHandle_t logic_input_queue;
 void io_init(void)
 {
     // Configure input pins
@@ -61,6 +57,12 @@ void io_task(void *pvParameters)
         // Debug log
         ESP_LOGI(TAG, "Sensors: T1=%d T2=%d T3=%d WrapDone=%d",
                  inputs.sensor1, inputs.sensor2, inputs.sensor3, inputs.wrap_done);
+
+        // put inputs to queue
+        if (logic_input_queue != NULL) {
+            inputs_t copy = inputs;
+            xQueueSend(logic_input_queue, &copy, 0);
+        }
 
         vTaskDelay(pdMS_TO_TICKS(500));
     }

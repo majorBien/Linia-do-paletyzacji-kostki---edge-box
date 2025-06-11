@@ -18,5 +18,9 @@
 #define TCP_CLIENT_TASK_PRIORITY			6
 #define TCP_CLIENT_TASK_CORE_ID				0
 
+#define LOGIC_TASK_STACK_SIZE				4096
+#define LOGIC_TASK_PRIORITY					8
+#define LOGIC_TASK_CORE_ID					0
+
 #endif /* MAIN_TASKS_COMMON_H_ */
 

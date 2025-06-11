@@ -2,7 +2,7 @@
  * modbus_tcp_master.c
  *
  *  Created on: 11 cze 2025
- *      Author: lenovo
+ *      Author: majorBien
  */
 // tcp_client.c
 
@@ -31,52 +31,34 @@ static void tcp_client_task(void *pvParameters)
     };
 
     while (1) {
-        int sock = socket(addr_family, SOCK_STREAM, ip_protocol);
-        if (sock < 0) {
-            ESP_LOGE(TAG, "Unable to create socket: errno %d", errno);
+	int sock = socket(addr_family, SOCK_STREAM, ip_protocol);
+    tcp_command_t cmd;
+    if (xQueueReceive(tcp_command_queue, &cmd, pdMS_TO_TICKS(1000))) {
+        char command_buffer[64] = {0};
+
+        switch (cmd.type) {
+            case CMD_ROBOT_PLACE:
+                snprintf(command_buffer, sizeof(command_buffer), "ROBOT:PLACE\n");
+                break;
+
+            case CMD_INVERTER_START:
+                snprintf(command_buffer, sizeof(command_buffer), "INVERTER:START\n");
+                break;
+
+            default:
+                continue;
+        }
+
+        int err = send(sock, command_buffer, strlen(command_buffer), 0);
+        if (err < 0) {
+            ESP_LOGE(TAG, "Send failed: errno %d", errno);
             break;
         }
-        ESP_LOGI(TAG, "Socket created, connecting to %s:%d", host_ip, PORT);
-
-        int err = connect(sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
-        if (err != 0) {
-            ESP_LOGE(TAG, "Socket unable to connect: errno %d", errno);
-            close(sock);
-            vTaskDelay(2000 / portTICK_PERIOD_MS);
-            continue;
-        }
-        ESP_LOGI(TAG, "Successfully connected");
-
-        while (1) {
-            int err = send(sock, payload, strlen(payload), 0);
-            if (err < 0) {
-                ESP_LOGE(TAG, "Error occurred during sending: errno %d", errno);
-                break;
-            } else {
-                ESP_LOGI(TAG, "Message sent");
-            }
-
-            int len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
-            if (len < 0) {
-                ESP_LOGE(TAG, "recv failed: errno %d", errno);
-                break;
-            } else {
-                rx_buffer[len] = 0;
-                ESP_LOGI(TAG, "Received %d bytes from %s:", len, host_ip);
-                ESP_LOGI(TAG, "%s", rx_buffer);
-            }
-
-            vTaskDelay(2000 / portTICK_PERIOD_MS);
-        }
-
-        if (sock != -1) {
-            ESP_LOGE(TAG, "Shutting down socket and restarting...");
-            shutdown(sock, 0);
-            close(sock);
-        }
+        ESP_LOGI(TAG, "Command sent: %s", command_buffer);
     }
 
-    vTaskDelete(NULL);
+}
+
 }
 
 void start_tcp_client_task(void)
