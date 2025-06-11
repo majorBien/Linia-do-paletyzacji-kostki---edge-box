@@ -11,7 +11,7 @@
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
+extern QueueHandle_t input_queue;
 // GPIO pin definitions
 #define IO_INPUT_SENSOR_1     2   // Czujnik transporter 1
 #define IO_INPUT_SENSOR_2     3   // Czujnik transporter 2

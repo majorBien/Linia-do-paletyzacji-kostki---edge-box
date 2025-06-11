@@ -53,7 +53,7 @@ void logic_task(void *pvParameters) {
                     // Read weight via ADC (or TCP from another device)
                     //weight = read_weight();
                     ESP_LOGI(TAG, "Cube weight: %.2f kg", weight);
-					weight = adc_get_filtered_weight();
+					//weight = adc_get_filtered_weight();
                     if (weight < 49.0f || weight > 51.0f) {
                         ESP_LOGW(TAG, "Incorrect weight, ejecting");
                         //gpio_set_level(IO_OUTPUT_EJECTOR, 1);
@@ -127,5 +127,4 @@ void start_logic_task(void)
                             LOGIC_TASK_PRIORITY,
                             NULL,
                             LOGIC_TASK_CORE_ID);
-}
 }

@@ -15,7 +15,7 @@
 #include "freertos/task.h"
 #include "driver/adc.h"
 #include "esp_adc_cal.h"
-
+#include <inttypes.h>
 #define ADC_SAMPLE_COUNT 64          // Number of samples for averaging
 #define ADC_DEFAULT_VREF 1100        // Default reference voltage in mV
 #define ADC_WEIGHT_CHANNEL ADC1_CHANNEL_0  // GPIO36 if ADC1, GPIO0 if ADC2

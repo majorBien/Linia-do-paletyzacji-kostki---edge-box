@@ -13,7 +13,7 @@
 #define TAG "io"
 
 inputs_t inputs;
-extern QueueHandle_t logic_input_queue;
+QueueHandle_t input_queue;
 void io_init(void)
 {
     // Configure input pins
