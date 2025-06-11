@@ -18,6 +18,7 @@
 #include "driver/gpio.h"
 #include "tcp.h"
 #include "tasks_common.h"
+#include "adc.h"
 
 QueueHandle_t tcp_command_queue;
 
@@ -52,7 +53,7 @@ void logic_task(void *pvParameters) {
                     // Read weight via ADC (or TCP from another device)
                     //weight = read_weight();
                     ESP_LOGI(TAG, "Cube weight: %.2f kg", weight);
-
+					weight = adc_get_filtered_weight();
                     if (weight < 49.0f || weight > 51.0f) {
                         ESP_LOGW(TAG, "Incorrect weight, ejecting");
                         //gpio_set_level(IO_OUTPUT_EJECTOR, 1);
@@ -117,7 +118,7 @@ void logic_task(void *pvParameters) {
     }
 }
 
-void start_logic_task_p(void)
+void start_logic_task(void)
 {
      xTaskCreatePinnedToCore(logic_task,
                             "logic",

@@ -22,5 +22,9 @@
 #define LOGIC_TASK_PRIORITY					8
 #define LOGIC_TASK_CORE_ID					0
 
+#define ADC_TASK_STACK_SIZE					4096
+#define ADC_TASK_PRIORITY					10
+#define ADC_TASK_CORE_ID					0
+
 #endif /* MAIN_TASKS_COMMON_H_ */
 

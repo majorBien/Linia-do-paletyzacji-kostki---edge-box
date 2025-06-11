@@ -50,6 +50,8 @@ void logic_task(void *pvParameters);
 // Set the number of layers on the pallet (e.g., from the operator panel)
 void logic_set_max_layers(pallet_layer_count_t layers);
 
+//start ogic task
+void start_logic_task(void);
 // Queue for passing data from io_task
 extern QueueHandle_t logic_input_queue;
 
