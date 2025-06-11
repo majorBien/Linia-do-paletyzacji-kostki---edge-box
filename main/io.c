@@ -14,6 +14,10 @@
 
 #define TAG "io"
 
+
+
+inputs_t inputs;
+
 void io_init(void)
 {
     // Configure input pins
@@ -49,14 +53,14 @@ void io_init(void)
 void io_task(void *pvParameters)
 {
     while (1) {
-        int sensor1 = gpio_get_level(IO_INPUT_SENSOR_1);
-        int sensor2 = gpio_get_level(IO_INPUT_SENSOR_2);
-        int sensor3 = gpio_get_level(IO_INPUT_SENSOR_3);
-        int wrap_done = gpio_get_level(IO_INPUT_WRAP_DONE);
+        inputs.sensor1 = gpio_get_level(IO_INPUT_SENSOR_1);
+        inputs.sensor2 = gpio_get_level(IO_INPUT_SENSOR_2);
+        inputs.sensor3 = gpio_get_level(IO_INPUT_SENSOR_3);
+        inputs.wrap_done = gpio_get_level(IO_INPUT_WRAP_DONE);
 
         // Debug log
         ESP_LOGI(TAG, "Sensors: T1=%d T2=%d T3=%d WrapDone=%d",
-                 sensor1, sensor2, sensor3, wrap_done);
+                 inputs.sensor1, inputs.sensor2, inputs.sensor3, inputs.wrap_done);
 
         vTaskDelay(pdMS_TO_TICKS(500));
     }
