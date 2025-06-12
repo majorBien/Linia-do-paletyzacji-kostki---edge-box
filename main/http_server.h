@@ -12,6 +12,19 @@
 #define OTA_UPDATE_SUCCESSFUL	1
 #define OTA_UPDATE_FAILED		-1
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+
+typedef struct {
+    char    *type;   // must be heap-allocated (strdup) and later freed
+    double   value;  // numeric payload
+    char cmd[512];
+} hmi_data_t;
+
+
+
+extern QueueHandle_t hmi_data_queue;
 /**
  * Messages for the HTTP monitor
  */

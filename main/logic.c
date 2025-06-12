@@ -5,12 +5,9 @@
  *      Author: majorBien
  */
 
-
-/* logic.c */
-
 #include "logic.h"
 #include "io.h"
-//#include "tcp_devices.h"  // Interface to the robot and inverter
+//#include "tcp_devices.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
@@ -19,20 +16,19 @@
 #include "tcp.h"
 #include "tasks_common.h"
 #include "adc.h"
-
+#include "http_server.h"
+#include <string.h>     
 
 QueueHandle_t tcp_command_queue;
-
 
 #define TAG "logic"
 
 extern QueueHandle_t input_queue;
+extern QueueHandle_t hmi_data_queue;
 
 static system_state_t current_state = STATE_IDLE;
 static uint8_t layer_count = 0;
 static uint8_t max_layers = 5;  // Default value, can be changed via HMI
-extern QueueHandle_t hmi_data_queue;
-
 
 void logic_task(void *pvParameters) {
     inputs_t inputs;
@@ -115,26 +111,30 @@ void logic_task(void *pvParameters) {
                         ESP_LOGI(TAG, "Wrap sensor triggered");
                         current_state = STATE_WRAPPING;
                     } else {
-                        // wait and recheck in next loop
                         vTaskDelay(pdMS_TO_TICKS(200));
                     }
                     break;
 
-			case STATE_HMI_DATA_EXCHANGE: {
+                case STATE_HMI_DATA_EXCHANGE: {
+                    hmi_data_t cmd;
+                    if (xQueueReceive(hmi_data_queue, &cmd, 0)) {
+                        ESP_LOGI(TAG, "HMI cmd: %s=%.2f", cmd.type, cmd.value);
+                        if (strcmp(cmd.type, "set_max_layers") == 0) {
+                            max_layers = (uint8_t)cmd.value;
+                            ESP_LOGI(TAG, "max_layers now %d", max_layers);
+                        }
+                        free(cmd.type);
+                    }
+                    current_state = STATE_IDLE;
+                    break;
+                }
+            } 
+        }   
+    }      
+}           
 
-			    current_state = STATE_IDLE;
-			    break;
-			}
-
-            }
-
-        }
-    }
-}
-
-void start_logic_task(void)
-{
-     xTaskCreatePinnedToCore(logic_task,
+void start_logic_task(void) {
+    xTaskCreatePinnedToCore(logic_task,
                             "logic",
                             LOGIC_TASK_STACK_SIZE,
                             NULL,
