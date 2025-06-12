@@ -48,6 +48,7 @@ void io_init(void)
 
 void io_task(void *pvParameters)
 {
+	input_queue = xQueueCreate(10, sizeof(int));
     while (1) {
         inputs.sensor1 = gpio_get_level(IO_INPUT_SENSOR_1);
         inputs.sensor2 = gpio_get_level(IO_INPUT_SENSOR_2);

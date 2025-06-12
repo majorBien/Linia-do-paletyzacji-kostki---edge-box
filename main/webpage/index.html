@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel HMI – Linia Pakowania (WebSocket)</title>
+  <link rel="stylesheet" href="app.css">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+</head>
+<body>
+  <div class="header">Panel HMI – Linia Pakowania</div>
+  <div class="clock" id="clock">--:--:--</div>
+  <div class="dashboard">
+    <div class="panel">
+      <div class="title">Linia pakowania</div>
+      <div style="text-align:center">
+        <button class="button start" onclick="sendCmd('START')">START</button>
+        <button class="button stop" onclick="sendCmd('STOP')">STOP</button>
+      </div>
+      <div class="label">Ilość warstw:
+        <select id="layerSelect" onchange="sendCmd('SET_LAYERS', +this.value)">
+          <option>3</option><option>5</option><option selected>8</option>
+        </select>
+      </div>
+      <div class="line-image"><div class="cube"></div></div>
+      <div class="label">Waga: <span id="weight">--</span> kg</div>
+    </div>
+    <div class="panel">
+      <div class="title">Pomiar wagi</div>
+      <div class="status" id="weightStatus">--</div>
+      <div class="line-image">⬛ ➡️ ⚖️ ➡️ ⬜</div>
+    </div>
+    <div class="panel">
+      <div class="title">Diagnostyka urządzeń</div>
+      <div class="label"><span class="lamp" id="lamp_sensor1"></span><span class="status-text">Sensor1</span></div>
+      <div class="label"><span class="lamp" id="lamp_sensor3"></span><span class="status-text">Sensor3</span></div>
+      <div class="label"><span class="lamp" id="lamp_wrap_done"></span><span class="status-text">Wrap Done</span></div>
+      <div class="label"><span class="lamp" id="lamp_robot"></span><span class="status-text">Robot</span></div>
+      <div class="label"><span class="lamp" id="lamp_inverter"></span><span class="status-text">Inverter</span></div>
+      <div class="label">Tryb serwisowy:
+        <input type="checkbox" id="serviceMode" onchange="sendCmd('SERVICE_MODE', this.checked)">
+      </div>
+      <div><button class="button" onclick="sendCmd('RESET_ERRORS')">RESET błędów</button></div>
+    </div>
+    <div class="panel">
+      <div class="title">Owijarka</div>
+      <div class="status" id="wrapStatus">--</div>
+      <div class="label">Postęp: <span id="progress">0%</span></div>
+      <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+      <div class="label" id="wrapMsg">--</div>
+    </div>
+    <div class="panel" style="grid-column: span 2;">
+      <div class="title">Log zdarzeń</div>
+      <div id="logs"></div>
+    </div>
+  </div>
+  <div class="footer">© 2025 Linia Pakowania | HMI z WebSocket</div>
+  <script src="app.js"></script>
+</body>
+</html>

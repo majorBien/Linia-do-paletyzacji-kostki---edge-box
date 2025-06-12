@@ -15,7 +15,7 @@
 #include "logic.h"
 #include "tcp.h"
 #include "adc.h"
-#include "hmi.h"
+#include "wifi_app.h"
 
 void app_main(void)
 {
@@ -34,7 +34,6 @@ void app_main(void)
     start_logic_task();
 	eth_app_task();
 	start_tcp_client_task();    // start TCP
-	hmi_uart_init();
-	hmi_task(NULL);
+	wifi_app_start();
 }
 

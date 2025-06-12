@@ -19,7 +19,7 @@
 #include "tcp.h"
 #include "tasks_common.h"
 #include "adc.h"
-#include "hmi.h"
+
 
 QueueHandle_t tcp_command_queue;
 
@@ -121,11 +121,7 @@ void logic_task(void *pvParameters) {
                     break;
 
 			case STATE_HMI_DATA_EXCHANGE: {
-			    hmi_data_t hmi_data;
-			    if (xQueueReceive(hmi_data_queue, &hmi_data, pdMS_TO_TICKS(100))) {
-			        max_layers = hmi_data.max_layers;
-			        ESP_LOGI(TAG, "Zaktualizowano ilość warstw z HMI: %d", max_layers);
-			    }
+
 			    current_state = STATE_IDLE;
 			    break;
 			}
