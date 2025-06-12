@@ -15,6 +15,7 @@
 #include "logic.h"
 #include "tcp.h"
 #include "adc.h"
+#include "hmi.h"
 
 void app_main(void)
 {
@@ -28,11 +29,12 @@ void app_main(void)
 	ESP_ERROR_CHECK(ret);
 
     
-    // Start measurement task with priority 5 and 4096 bytes stack
+    // Start tasks
     adc_task_start();
     start_logic_task();
 	eth_app_task();
 	start_tcp_client_task();    // start TCP
-
+	hmi_uart_init();
+	hmi_task(NULL);
 }
 

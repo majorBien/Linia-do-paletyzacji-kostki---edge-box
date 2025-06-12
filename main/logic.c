@@ -19,6 +19,7 @@
 #include "tcp.h"
 #include "tasks_common.h"
 #include "adc.h"
+#include "hmi.h"
 
 QueueHandle_t tcp_command_queue;
 
@@ -30,7 +31,7 @@ extern QueueHandle_t input_queue;
 static system_state_t current_state = STATE_IDLE;
 static uint8_t layer_count = 0;
 static uint8_t max_layers = 5;  // Default value, can be changed via HMI
-
+extern QueueHandle_t hmi_data_queue;
 
 
 void logic_task(void *pvParameters) {
@@ -50,16 +51,12 @@ void logic_task(void *pvParameters) {
                     break;
 
                 case STATE_MEASURING:
-                    // Read weight via ADC (or TCP from another device)
                     weight = read_weight();
                     ESP_LOGI(TAG, "Cube weight: %.2f kg", weight);
-					//weight = adc_get_filtered_weight();
+
                     if (weight < 49.0f || weight > 51.0f) {
                         ESP_LOGW(TAG, "Incorrect weight, ejecting");
-                        //gpio_set_level(IO_OUTPUT_EJECTOR, 1);
-                        vTaskDelay(pdMS_TO_TICKS(500));
-                        gpio_set_level(IO_OUTPUT_EJECTOR, 0);
-                        current_state = STATE_IDLE;
+                        current_state = STATE_EJECT_REJECTED;
                     } else {
                         current_state = STATE_READY_FOR_ROBOT;
                     }
@@ -68,14 +65,10 @@ void logic_task(void *pvParameters) {
                 case STATE_READY_FOR_ROBOT:
                     if (inputs.sensor3) {
                         ESP_LOGI(TAG, "Cube ready for pickup by robot");
-                        //robot_place_on_pallet();
+                        tcp_command_t cmd_r = { .type = CMD_ROBOT_PLACE };
+                        xQueueSend(tcp_command_queue, &cmd_r, 0);
                         current_state = STATE_WAIT_FOR_LAYER;
                     }
-                    tcp_command_t cmd_r = {
-					.type = CMD_ROBOT_PLACE
-					};
-					xQueueSend(tcp_command_queue, &cmd_r, 0);
-
                     break;
 
                 case STATE_WAIT_FOR_LAYER:
@@ -83,16 +76,12 @@ void logic_task(void *pvParameters) {
                     ESP_LOGI(TAG, "Layers placed: %d / %d", layer_count, max_layers);
 
                     if (layer_count >= max_layers) {
-                        //send_inverter_start();
-                        current_state = STATE_WRAPPING;
+                        tcp_command_t cmd_i = { .type = CMD_INVERTER_START };
+                        xQueueSend(tcp_command_queue, &cmd_i, 0);
+                        current_state = STATE_WAIT_WRAP_DONE;
                     } else {
                         current_state = STATE_IDLE;
                     }
-                    tcp_command_t cmd_i = {
-					.type = CMD_INVERTER_START
-					};
-					xQueueSend(tcp_command_queue, &cmd_i, 0);
-
                     break;
 
                 case STATE_WRAPPING:
@@ -105,19 +94,44 @@ void logic_task(void *pvParameters) {
                         current_state = STATE_IDLE;
                     }
                     break;
-                    
+
                 case STATE_EJECT_REJECTED:
-                
-                break;
-                
+                    gpio_set_level(IO_OUTPUT_EJECTOR, 1);
+                    vTaskDelay(pdMS_TO_TICKS(700));
+                    gpio_set_level(IO_OUTPUT_EJECTOR, 0);
+                    gpio_set_level(IO_OUTPUT_LED_RED, 1);
+                    vTaskDelay(pdMS_TO_TICKS(500));
+                    gpio_set_level(IO_OUTPUT_LED_RED, 0);
+                    ESP_LOGI(TAG, "Rejected cube ejected");
+                    current_state = STATE_IDLE;
+                    break;
+
                 case STATE_WAIT_WRAP_DONE:
-                
-                break;
-                
-                case STATE_HMI_DATA_EXCHANGE:
-                
-                break;
+                    gpio_set_level(IO_OUTPUT_WRAPPER, 1);
+                    ESP_LOGI(TAG, "Wrapper started");
+
+                    if (inputs.wrap_done) {
+                        gpio_set_level(IO_OUTPUT_WRAPPER, 0);
+                        ESP_LOGI(TAG, "Wrap sensor triggered");
+                        current_state = STATE_WRAPPING;
+                    } else {
+                        // wait and recheck in next loop
+                        vTaskDelay(pdMS_TO_TICKS(200));
+                    }
+                    break;
+
+			case STATE_HMI_DATA_EXCHANGE: {
+			    hmi_data_t hmi_data;
+			    if (xQueueReceive(hmi_data_queue, &hmi_data, pdMS_TO_TICKS(100))) {
+			        max_layers = hmi_data.max_layers;
+			        ESP_LOGI(TAG, "Zaktualizowano ilość warstw z HMI: %d", max_layers);
+			    }
+			    current_state = STATE_IDLE;
+			    break;
+			}
+
             }
+
         }
     }
 }
