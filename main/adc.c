@@ -50,8 +50,8 @@ static void adc_task(void *arg)
         int raw = 0;
         esp_err_t err = adc_oneshot_read(adc_handle, ADC_CHANNEL, &raw);
         if (err == ESP_OK) {
-            // Example conversion: assume max 4095 = 5.0 kg
-            latest_weight = (float)raw * 5.0f / 4095.0f;
+            // Example conversion: assume max 4095 = 100.0 kg
+            latest_weight = (float)raw * 100.0f / 4095.0f;
         } else {
             ESP_LOGE(TAG, "ADC read error: %s", esp_err_to_name(err));
         }
