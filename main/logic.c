@@ -51,7 +51,7 @@ void logic_task(void *pvParameters) {
 
                 case STATE_MEASURING:
                     // Read weight via ADC (or TCP from another device)
-                    //weight = read_weight();
+                    weight = read_weight();
                     ESP_LOGI(TAG, "Cube weight: %.2f kg", weight);
 					//weight = adc_get_filtered_weight();
                     if (weight < 49.0f || weight > 51.0f) {
@@ -111,6 +111,10 @@ void logic_task(void *pvParameters) {
                 break;
                 
                 case STATE_WAIT_WRAP_DONE:
+                
+                break;
+                
+                case STATE_HMI_DATA_EXCHANGE:
                 
                 break;
             }
