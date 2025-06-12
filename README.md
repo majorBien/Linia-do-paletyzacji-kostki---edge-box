@@ -44,8 +44,8 @@ The control panel includes:
 
 - Electrical control **schematic diagram**
 - **PLC wiring** and configuration
-- **PLC program**
-- **HMI visualization** of the operator panel
+- **MCU program**
+- **Web HMI visualization** of the operator panel
 - **Schematic layout** of the packing line (linear configuration)
 - Robot recommendation based on:
   - **Block weight**
