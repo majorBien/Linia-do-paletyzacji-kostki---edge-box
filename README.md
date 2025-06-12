@@ -76,8 +76,8 @@ The selected robot should:
 
 ## 🖥️ Technologies Used
 
-- **PLC programming** (e.g., Siemens TIA Portal or equivalent)
-- **HMI/SCADA visualization**
+- **espidf framework** 
+- **Web development Jquery**
 - **Mechatronic system design**
 - **CAD tools** for layout and schematics
 
