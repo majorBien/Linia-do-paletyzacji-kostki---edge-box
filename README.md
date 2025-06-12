@@ -4,6 +4,8 @@
 
 This project involves designing and implementing an automated packing line for blocks with dimensions **600×200×300 mm** onto a standard **Euro pallet (1200×800 mm)** in alternating layouts A and B. The line integrates **weighing**, **layer stacking**, and **pallet wrapping** systems. The project is a part of the *Mechatronics III* curriculum.
 
+![image](https://github.com/user-attachments/assets/29605b23-445e-42ac-962e-5c633de11b76)
+
 ---
 
 ## 🛠️ Line Description
